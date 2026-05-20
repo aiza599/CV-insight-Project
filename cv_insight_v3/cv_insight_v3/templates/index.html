@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CV Insight AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="grid-bg"></div>
+
+<!-- Glow orbs -->
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="wrapper">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="brand-badge">CV</div>
+      <div>
+        <div class="brand-name">CV Insight AI</div>
+        <div class="brand-sub">GenAI + NLP Hybrid</div>
+      </div>
+    </div>
+    <div class="nav-tags">
+      <span class="tag">Flask</span>
+      <span class="tag">Gemini AI</span>
+      <span class="tag">NLP</span>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <span class="dot"></span> AI-Powered Resume Analysis
+    </div>
+    <h1 class="hero-title">
+      TURN YOUR<br/>
+      <span class="title-outline">RESUME INTO</span><br/>
+      <span class="title-accent">RESULTS.</span>
+    </h1>
+    <p class="hero-desc">Upload your CV — get an AI-powered score, semantic job matching, missing skills, ATS tips, and improvement suggestions instantly.</p>
+
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">100</div><div class="stat-label">Max Score</div></div>
+      <div class="stat-div"></div>
+      <div class="stat"><div class="stat-num">AI</div><div class="stat-label">Powered</div></div>
+      <div class="stat-div"></div>
+      <div class="stat"><div class="stat-num">NLP</div><div class="stat-label">Semantic Match</div></div>
+    </div>
+  </section>
+
+  <!-- FORM CARD -->
+  <div class="form-card">
+
+    <!-- Step 1: Upload -->
+    <div class="step-block">
+      <div class="step-header">
+        <div class="step-num">01</div>
+        <div>
+          <div class="step-title">Upload Your CV</div>
+          <div class="step-sub">PDF format • Max 5MB</div>
+        </div>
+      </div>
+
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('pdfFile').click()">
+        <input type="file" id="pdfFile" accept=".pdf" style="display:none" onchange="handleUpload(this)"/>
+        <div class="upload-inner" id="uploadInner">
+          <div class="upload-svg">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path d="M12 16V8M12 8L9 11M12 8L15 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 15C3 17.8284 3 19.2426 3.87868 20.1213C4.75736 21 6.17157 21 9 21H15C17.8284 21 19.2426 21 20.1213 20.1213C21 19.2426 21 17.8284 21 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="upload-title">Drop PDF here or click to browse</div>
+          <div class="upload-hint">Supports text-based PDFs</div>
+        </div>
+      </div>
+
+      <div id="uploadStatus" class="upload-status hidden"></div>
+    </div>
+
+    <div class="divider"><span>or</span></div>
+
+    <!-- Step 2: Text -->
+    <div class="step-block">
+      <div class="step-header">
+        <div class="step-num">02</div>
+        <div>
+          <div class="step-title">Resume Text</div>
+          <div class="step-sub">Auto-filled from PDF — or paste manually</div>
+        </div>
+      </div>
+      <textarea id="resumeText" class="textarea tall" placeholder="Your resume text will appear here after PDF upload...&#10;&#10;Or paste it directly — name, skills, experience, education, projects..."></textarea>
+    </div>
+
+    <!-- Step 3: Job Description -->
+    <div class="step-block">
+      <div class="step-header">
+        <div class="step-num">03</div>
+        <div>
+          <div class="step-title">Job Description</div>
+          <div class="step-sub">Optional — enables semantic matching & score boost</div>
+        </div>
+      </div>
+      <textarea id="jobDesc" class="textarea" placeholder="Paste the job description here for targeted analysis and matching score..."></textarea>
+    </div>
+
+    <!-- Analyze Button -->
+    <button class="analyze-btn" id="analyzeBtn" onclick="analyzeResume()">
+      <span id="btnText">Analyze My Resume</span>
+      <svg id="btnArrow" width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+  </div>
+
+  <!-- LOADING -->
+  <div id="loadingSection" class="loading hidden">
+    <div class="loading-bars">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+    <div class="loading-text">Gemini AI is analyzing your resume...</div>
+    <div class="loading-sub">Semantic matching · Skill extraction · Score calculation</div>
+  </div>
+
+  <!-- ERROR -->
+  <div id="errorBox" class="error-box hidden">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span id="errorMsg"></span>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results" class="results hidden">
+
+    <!-- Score Hero -->
+    <div class="score-hero">
+      <div class="score-left">
+        <div class="score-eyebrow">Your Resume Score</div>
+        <div class="score-big">
+          <span id="scoreNum">--</span>
+          <span class="score-slash">/100</span>
+        </div>
+        <div id="gradeChip" class="grade-chip"></div>
+      </div>
+      <div class="score-right">
+        <div class="score-bar-track">
+          <div id="scoreBarFill" class="score-bar-fill"></div>
+        </div>
+        <p id="summaryTxt" class="summary-txt"></p>
+        <div id="verdictTxt" class="verdict-txt"></div>
+      </div>
+    </div>
+
+    <!-- Cards Row -->
+    <div class="cards-row">
+
+      <div class="info-card green-card">
+        <div class="card-head">
+          <div class="card-icon green-icon">✓</div>
+          <span class="card-title">Strengths</span>
+        </div>
+        <ul id="strengthsList" class="card-list"></ul>
+      </div>
+
+      <div class="info-card blue-card">
+        <div class="card-head">
+          <div class="card-icon blue-icon">#</div>
+          <span class="card-title">Missing Keywords</span>
+        </div>
+        <div id="keywordChips" class="chips-wrap"></div>
+      </div>
+
+      <div class="info-card purple-card">
+        <div class="card-head">
+          <div class="card-icon purple-icon">⚙</div>
+          <span class="card-title">ATS Tips</span>
+        </div>
+        <ul id="atsList" class="card-list"></ul>
+      </div>
+
+    </div>
+
+    <!-- Improvements -->
+    <div class="improvements">
+      <div class="imp-head">
+        <div class="imp-icon">↑</div>
+        <div class="imp-title">Areas to Improve</div>
+      </div>
+      <div id="impList" class="imp-grid"></div>
+    </div>
+
+    <!-- Analyze Again -->
+    <button class="again-btn" onclick="resetForm()">← Analyze Another Resume</button>
+
+  </div>
+
+  <footer class="footer">
+    CV Insight AI &nbsp;·&nbsp; Flask + Gemini API + NLP Hybrid &nbsp;·&nbsp; Semantic Resume Analysis
+  </footer>
+
+</div>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
